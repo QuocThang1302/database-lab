@@ -1,0 +1,309 @@
+				--QuanLyBanHang--
+					--Bai01--
+
+		--Cau 12--
+	 SELECT SOHD, SL
+	 FROM CTHD
+	 WHERE MASP IN ('BB01','BB02')
+	 AND SL BETWEEN 10 AND 20
+ 
+		--Cau 13--
+	SELECT DISTINCT SOHD
+	FROM CTHD
+	WHERE MASP = 'BB01' AND SL BETWEEN 10 AND 20
+	INTERSECT
+	(
+		SELECT DISTINCT SOHD
+		FROM CTHD
+		WHERE MASP = 'BB02' AND SL BETWEEN 10 AND 20
+	)
+
+		--Cau 14--
+	SELECT DISTINCT SANPHAM.MASP, TENSP
+	FROM HOADON, SANPHAM, CTHD
+	WHERE
+		HOADON.SOHD = CTHD.SOHD
+		AND CTHD.MASP = SANPHAM.MASP
+		AND (NUOCSX = 'Trung Quoc'
+		OR NGHD = '1/1/2007');
+ 
+				
+					--Bai02--
+				--QuanLyGiaoVu--
+		--Cau 1--
+	UPDATE GIAOVIEN
+	SET HESO = HESO + 0.2
+	WHERE MAGV IN( SELECT TRGKHOA FROM KHOA)
+
+		--Cau 2--
+	UPDATE HOCVIEN
+	SET DIEMTB = 
+	(
+		SELECT AVG(DIEM)
+		FROM KETQUATHI
+		WHERE LANTHI = (SELECT MAX(LANTHI) FROM KETQUATHI KQ WHERE MAHV = KETQUATHI.MAHV GROUP By MAHV)
+		GROUP BY MAHV
+		HAVING MAHV = HOCVIEN.MAHV
+	)
+
+		--Cau 3--
+	UPDATE HOCVIEN
+	SET GHICHU = 'Cam thi'
+	WHERE MAHV IN
+	(
+		SELECT MAHV
+		FROM KETQUATHI
+		WHERE LANTHI = 3 AND DIEM <5
+	)
+
+		--Cau 4--
+	UPDATE HOCVIEN
+	SET XEPLOAI = 
+	(
+		CASE
+			WHEN DIEMTB >=9 THEN  'XS'
+			WHEN DIEMTB >=8 AND DIEMTB < 9 THEN 'G'
+			WHEN DIEMTB >=6.5 AND DIEMTB < 8 THEN 'K'
+			WHEN DIEMTB >=5 AND DIEMTB < 6.5 THEN 'TB'
+			WHEN DIEMTB <5 THEN 'Y'
+		END
+	)
+
+
+					--Bai03--
+				--QuanLyGiaoVu--
+
+		--Cau 6--
+	SELECT DISTINCT TENMH
+	FROM 
+		MONHOC, GIAOVIEN, GIANGDAY
+	WHERE
+		MONHOC.MAMH = GIANGDAY.MAMH
+		AND GIAOVIEN.MAGV = GIANGDAY.MAGV
+		AND HOTEN = 'Tran Tam Thanh'
+		AND HOCKY = 1 AND NAM = 2006;
+
+		--Cau 7--
+	SELECT DISTINCT 
+			MONHOC.MAMH, TenMH
+	FROM 
+		MONHOC, LOP, GIANGDAY
+	WHERE 
+		GIANGDAY.MAMH = MONHOC.MAMH
+		AND GIANGDAY.MAGV = LOP.MAGVCN
+		AND Lop.MALOP = 'K11'
+		AND HOCKY = 1 AND NAM = 2006
+
+		--Cau 8--
+	SELECT DISTINCT
+		(HO+' '+TEN)HOTEN
+	FROM
+		HOCVIEN, LOP, GIAOVIEN, GIANGDAY, MONHOC
+	WHERE 
+		LOP.TRGLOP = HOCVIEN.MAHV
+		AND GIANGDAY.MAGV = LOP.MALOP
+		AND GIANGDAY.MAGV = GIAOVIEN.MAGV
+		AND GIANGDAY.MAMH = MONHOC.MAMH
+		AND HOTEN = 'Nguyen To Lam'
+		AND TENMH = 'Co So Du Lieu'
+
+
+		--Cau 9--
+	SELECT 
+		MONHOCTRUOC.MAMH, MONHOCTRUOC.TENMH
+	FROM
+		MONHOC, MONHOC AS MONHOCTRUOC, DIEUKIEN
+	WHERE
+		MONHOC.MAMH = DIEUKIEN.MAMH
+		AND MONHOCTRUOC.MAMH = DIEUKIEN.MAMH_TRUOC
+		AND MONHOC.TENMH = 'Co So Du Lieu'
+
+
+		--Cau 10--
+	SELECT 
+		MONHOC.MAMH, MONHOC.TENMH
+	FROM 
+		MONHOC, DIEUKIEN, MONHOC as MonHocTruoc
+	WHERE
+		MONHOC.MAMH = DIEUKIEN.MAMH
+		AND MonHocTruoc.MAMH = DIEUKIEN.MAMH_TRUOC
+		AND MonHocTruoc.TENMH = 'Cau truc roi rac';
+
+
+					--Bai04--
+				--QuanLyBanHang--
+		--Cau 14--
+	SELECT DISTINCT SANPHAM.MASP, TENSP
+	FROM HOADON, CTHD, SANPHAM
+	WHERE
+		HOADON.SOHD = CTHD.SOHD
+		AND CTHD.MASP = SANPHAM.MASP
+		AND (NUOCSX = 'Trung Quoc'
+		OR NGHD = '1/1/2007');
+
+		--Cau 15--
+	SELECT MASP, TENSP
+	FROM SANPHAM
+	WHERE MASP NOT IN (SELECT MASP FROM CTHD);
+
+		--Cau 16--
+	SELECT MASP, TENSP
+	FROM SANPHAM
+	WHERE MASP NOT IN
+	(
+		SELECT MASP
+		FROM CTHD, HOADON
+		WHERE 
+			CTHD.SOHD = HOADON.SOHD
+			AND YEAR(NGHD) = 2006
+	)
+
+		--Cau 17--
+	SELECT MASP, TENSP
+	FROM SANPHAM
+	WHERE 
+		NUOCSX = 'Trung Quoc'
+		AND MASP NOT IN
+		(
+			SELECT MASP
+		FROM CTHD, HOADON
+		WHERE 
+			CTHD.SOHD = HOADON.SOHD
+			AND YEAR(NGHD) = 2006
+		)
+
+		--Cau 18--
+	SELECT SOHD
+	FROM HOADON
+	WHERE NOT EXISTS
+	(
+		SELECT * 
+		FROM SANPHAM
+		WHERE
+			NUOCSX = 'Singapore'
+			AND NOT EXISTS 
+				(
+					SELECT *
+					FROM CTHD
+					WHERE HOADON.SOHD = CTHD.SOHD
+					      AND SANPHAM.MASP = CTHD.MASP
+				)
+	)
+
+
+						--Bai05--
+					--QuanLyGiaoVu--
+
+		--Cau 11--
+	SELECT HoTen
+	FROM
+		GIAOVIEN, GIANGDAY
+	WHERE
+		GiaoVien.MaGV = GiangDay.MAGV
+		AND MaLop = 'K11'
+		AND HocKy = 1 AND Nam = 2006
+	INTERSECT 
+		(SELECT HoTen
+		FROM
+			GiaoVien, GiangDay
+		WHERE
+			GiaoVien.MaGV = GiangDay.MaGV
+			AND MaLop = 'K12' AND HocKy = 1 AND Nam = 2006)
+
+		--Cau 12--
+	SELECT
+		HocVien.MaHV, (Ho+' '+Ten) HoTen
+	FROM
+		HocVien, KetQuaThi
+	WHERE
+		HocVien.MaHV = KetQuaThi.MaHV
+		AND MaMH = 'CSDL' AND LanThi = 1 AND KQua = 'Khong Dat'
+		AND NOT EXISTS (SELECT * FROM KetQuaThi WHERE LanThi > 1 AND KetQuaThi.MaHV = HocVien.MaHV)
+
+		--Cau 13--
+	SELECT MaGV, HoTen
+	FROM GiaoVien
+	WHERE MaGV NOT IN (SELECT MaGV FROM GiangDay)
+
+		--Cau 14--
+	SELECT MaGV, HoTen
+	FROM GiaoVien
+	WHERE NOT EXISTS
+	(
+		SELECT *
+		FROM MonHoc
+		WHERE MonHoc.MaKhoa = GiaoVien.MaKhoa
+		AND NOT EXISTS
+		(
+			SELECT *
+			FROM GiangDay
+			WHERE GiangDay.MaMH = MonHoc.MaMH
+			AND GiangDay.MaGV = GiaoVien.MaGV
+		)
+	)
+
+		--Cau 15--
+	SELECT DISTINCT
+		(Ho+' '+Ten) HoTen
+	FROM
+		HocVien, KetQuaThi
+	WHERE
+		HocVien.MaHV = KetQuaThi.MaHV
+		AND MaLop = 'K11'
+		AND ((LanThi = 2 AND Diem = 5)
+		OR HocVien.MaHV IN
+		(
+			SELECT DISTINCT MaHV
+			FROM KetQuaThi
+			WHERE KQua = 'Khong Dat'
+			GROUP BY MaHV, MaMH
+			HAVING COUNT(*) > 3	
+		))
+
+		--Cau 16--
+	SELECT HoTen
+	FROM
+		GiaoVien, GiangDay
+	WHERE
+		GiaoVien.MaGV = GiangDay.MaGV
+		AND MaMH = 'CTRR'
+	GROUP BY 
+		GiaoVien.MaGV, HoTen, HocKy
+	HAVING 
+		COUNT(*) >= 2
+
+		--Cau 17--
+	SELECT
+		HocVien.*, Diem AS 'Diem thi CSDL sau cung'
+	FROM
+		HocVien, KetQuaThi
+	WHERE
+		HocVien.MaHV = KetQuaThi.MaHV
+		AND MaMH = 'CSDL'
+		AND LanThi = 
+		(
+			SELECT MAX(LanThi) 
+			FROM KetQuaThi 
+			WHERE MaMH = 'CSDL' AND KetQuaThi.MaHV = HocVien.MaHV 
+			GROUP BY MaHV
+		)
+
+		--Cau 18--
+	SELECT
+		HocVien.*, Diem AS 'Diem thi cao nhat'
+	FROM
+		HocVien, KetQuaThi, MonHoc
+	WHERE
+		HocVien.MaHV = KetQuaThi.MaHV
+		AND KetQuaThi.MaMH = MonHoc.MaMH
+		AND TenMH = 'Co So Du Lieu'
+		AND Diem = 
+		(
+			SELECT MAX(Diem) 
+			FROM KetQuaThi, MonHoc
+			WHERE
+				KetQuaThi.MaMH = MonHoc.MaMH
+				AND MaHV = HocVien.MaHV
+				AND TenMH = 'Co So Du Lieu'
+			GROUP BY MaHV
+		)
